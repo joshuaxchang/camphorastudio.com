@@ -1,0 +1,45 @@
+---
+// src/components/Header.astro
+---
+<header class="sticky top-0 bg-brand-bg/80 backdrop-blur-md z-10 border-b border-gray-200/80">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" class="flex items-center gap-3 font-heading text-xl font-bold text-brand-text hover:text-brand-primary transition-colors">
+            <img src="/camphora-logo.svg" alt="Camphora Studio logo" class="h-10 w-10" />
+            <span>Camphora Studio</span>
+        </a>
+        <div class="hidden md:flex items-center space-x-8">
+            <a href="/#products" class="font-semibold text-gray-600 hover:text-brand-primary transition-colors">Products</a>
+            <a href="/about" class="font-semibold text-gray-600 hover:text-brand-primary transition-colors">About</a>
+            <a href="/contact" class="font-semibold text-gray-600 hover:text-brand-primary transition-colors">Contact</a>
+        </div>
+        <div class="md:hidden">
+            <button id="mobile-menu-btn" class="text-gray-600 hover:text-gray-900">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+    </nav>
+    <div id="mobile-menu" class="hidden md:hidden">
+        <nav class="container mx-auto px-8 pb-4 flex flex-col space-y-4">
+            <a href="/#products" class="font-semibold text-gray-600 hover:text-brand-primary transition-colors">Products</a>
+            <a href="/about" class="font-semibold text-gray-600 hover:text-brand-primary transition-colors">About</a>
+            <a href="/contact" class="font-semibold text-gray-600 hover:text-brand-primary transition-colors">Contact</a>
+        </nav>
+    </div>
+</header>
+
+<script>
+    const mobileMenuButton = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Close the mobile menu when a link is clicked
+    mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+    });
+</script>

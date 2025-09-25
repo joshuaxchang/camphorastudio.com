@@ -1,0 +1,17 @@
+---
+// src/components/YouTube.astro
+const { id } = Astro.props;
+---
+
+<div class="yt-embed my-8">
+  <iframe
+    width="560"
+    height="315"
+    src={`https://www.youtube-nocookie.com/embed/${id}`}
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    class="w-full h-full rounded-lg shadow-lg"
+  ></iframe>
+</div>

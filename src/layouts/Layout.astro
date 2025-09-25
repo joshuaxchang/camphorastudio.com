@@ -1,0 +1,36 @@
+---
+// src/layouts/Layout.astro
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+import '../styles/fonts.css';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { 
+    title = 'Joshua Chang', 
+    description = 'The design and development portfolio of Joshua Chang' 
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		
+		
+    <title>{title}</title>
+	</head>
+    <body class="bg-brand-bg text-brand-text">
+		<Header />
+		<slot />
+		<Footer />
+	</body>
+</html>

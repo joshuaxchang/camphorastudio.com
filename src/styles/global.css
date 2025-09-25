@@ -1,0 +1,30 @@
+/* src/styles/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === ADD THESE CUSTOM STYLES FOR PROSE LINKS === */
+.prose a {
+  @apply text-brand-primary font-medium no-underline transition-colors;
+}
+
+.prose a:hover {
+  @apply underline;
+}
+
+.yt-embed {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+.fb-video-wrapper {
+  max-width: 560px; /* Sets the max size of the video */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fb-video-wrapper iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 560 / 440;
+}
