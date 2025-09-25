@@ -1,11 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
-// Corrected import path for the new file location
-import Layout from '../layouts/Layout.astro'; 
+import Layout from '../layouts/Layout.astro';
 import { Image } from 'astro:assets';
 
 // --- START: SHOPIFY DATA FETCHING ---
-
 const SHOPIFY_STORE_DOMAIN = import.meta.env.PUBLIC_SHOPIFY_STORE_DOMAIN;
 const SHOPIFY_STOREFRONT_API_TOKEN = import.meta.env.PUBLIC_SHOPIFY_STOREFRONT_API_TOKEN;
 const storefrontApiUrl = `https://${SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`;
@@ -23,13 +21,13 @@ async function getShopifyProduct(shopifyProductId) {
           edges {
             node {
               id
+              availableForSale
             }
           }
         }
       }
     }
   `;
-
   try {
     const response = await fetch(storefrontApiUrl, {
       method: 'POST',
@@ -42,7 +40,6 @@ async function getShopifyProduct(shopifyProductId) {
         variables: { id: shopifyProductId },
       }),
     });
-
     const json = await response.json();
     return json.data.product;
   } catch (error) {
@@ -65,8 +62,7 @@ const { Content } = await render();
 const shopifyProduct = await getShopifyProduct(data.shopifyProductId);
 const price = shopifyProduct?.priceRange.minVariantPrice;
 const variantId = shopifyProduct?.variants.edges[0]?.node.id;
-
-// --- END: SHOPIFY DATA FETCHING ---
+const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
 ---
 
 <Layout title={data.title}>
