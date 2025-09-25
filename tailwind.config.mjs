@@ -7,13 +7,14 @@ export default {
     theme: {
         extend: {
             colors: {
-                'brand-bg': '#F1ECE4', // New background from logo
-                'brand-card': '#FCFBF8', // New color for cards
-                'brand-text': '#4A4A4A', 
-                'brand-primary': '#5F7A52', // New Joshua Tree green
-                'brand-primary-hover': '#4C6141', // Darker green for hover
-                'brand-accent': '#F1AB50', // New sun yellow
-                'brand-accent-light': '#FBEFDD', // Lighter sun yellow for gradient
+                'brand-bg': '#FCFBF8',          // A brighter, sunnier off-white
+                'brand-card': '#FFFFFF',        // Pure white for cards
+                'brand-text': '#4B423C',        // Kept the deep, rich brown for text
+                'brand-primary': '#5B8266',     // A lighter, sunnier camphor leaf green
+                'brand-primary-hover': '#4A6B52',// A darker shade for hover
+                'brand-accent': '#A88A6F',      // A lighter, sun-bleached bark brown
+                'brand-accent-light': '#F3EFEA', // A very light, warm beige
+
             },
             fontFamily: {
                 sans: ['Inter', ...defaultTheme.fontFamily.sans],
