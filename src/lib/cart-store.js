@@ -6,7 +6,7 @@ const cartOverlay = document.getElementById('cart-overlay');
 const closeCartButton = document.getElementById('close-cart');
 const cartItemsContainer = document.getElementById('cart-items');
 const checkoutLink = document.getElementById('checkout-link');
-const cartCountElements = document.querySelectorAll('.cart-count');
+const cartCountBadge = document.getElementById('cart-count-badge');
 
 // --- STATE ---
 let cartId = localStorage.getItem('cartId');
@@ -28,8 +28,9 @@ function closeCart() {
 function updateCartUI() {
     if (!cartData) {
         cartItemsContainer.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
-        cartCountElements.forEach(el => { el.textContent = `Cart (0)`; });
         checkoutLink.href = '#';
+        cartCountBadge.classList.add('hidden');
+        cartCountBadge.textContent = '0';
         return;
     }
 
@@ -55,13 +56,16 @@ function updateCartUI() {
     checkoutLink.href = cartData.checkoutUrl;
 
     const totalItems = cartData.totalQuantity || 0;
-    cartCountElements.forEach(el => {
-        el.textContent = `Cart (${totalItems})`;
-    });
+    
+    cartCountBadge.textContent = totalItems;
+    if (totalItems > 0) {
+        cartCountBadge.classList.remove('hidden');
+    } else {
+        cartCountBadge.classList.add('hidden');
+    }
 }
 
-
-// --- API FUNCTIONS ---
+// --- API FUNCTIONS (remain the same) ---
 export async function addToCart(variantId) {
     const isExistingCart = !!cartId;
     const action = isExistingCart ? 'add' : 'create';
@@ -117,7 +121,7 @@ async function initializeCart() {
     updateCartUI();
 }
 
-// --- INITIALIZE & ATTACH LISTENERS ---
+// --- INITIALIZE & ATTACH LISTENERS (remain the same) ---
 document.querySelectorAll('.open-cart').forEach(btn => btn.addEventListener('click', openCart));
 closeCartButton.addEventListener('click', closeCart);
 cartOverlay.addEventListener('click', closeCart);
