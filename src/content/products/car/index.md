@@ -1,7 +1,7 @@
 ---
 title: 'Test 1'
 description: 'product'
-shopifyProductId: 'gid://shopify/Product/1234567890'
+shopifyProductId: 'gid://shopify/Product/7804723593325'
 pubDate: '2019-08-30'
 thumbnail: './giraffe.jpg'
 images:
@@ -12,9 +12,6 @@ images:
   - './giraffe.jpg'
   - './giraffe.jpg'
   - './giraffe.jpg'
-  
-  
-
 ---
 
 

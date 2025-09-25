@@ -1,7 +1,56 @@
 ---
 import { getCollection } from 'astro:content';
-import Layout from '../layouts/Layout.astro';
+// Corrected import path for the new file location
+import Layout from '../layouts/Layout.astro'; 
 import { Image } from 'astro:assets';
+
+// --- START: SHOPIFY DATA FETCHING ---
+
+const SHOPIFY_STORE_DOMAIN = import.meta.env.PUBLIC_SHOPIFY_STORE_DOMAIN;
+const SHOPIFY_STOREFRONT_API_TOKEN = import.meta.env.PUBLIC_SHOPIFY_STOREFRONT_API_TOKEN;
+const storefrontApiUrl = `https://${SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`;
+
+async function getShopifyProduct(shopifyProductId) {
+  const query = `
+    query getProductById($id: ID!) {
+      product(id: $id) {
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: 1) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await fetch(storefrontApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_API_TOKEN,
+      },
+      body: JSON.stringify({
+        query,
+        variables: { id: shopifyProductId },
+      }),
+    });
+
+    const json = await response.json();
+    return json.data.product;
+  } catch (error) {
+    console.error(`Failed to fetch Shopify product:`, error);
+    return null;
+  }
+}
 
 export async function getStaticPaths() {
   const products = await getCollection('products');
@@ -14,7 +63,13 @@ export async function getStaticPaths() {
 const { data, render } = Astro.props;
 const { Content } = await render();
 
+const shopifyProduct = await getShopifyProduct(data.shopifyProductId);
+const price = shopifyProduct?.priceRange.minVariantPrice;
+const variantId = shopifyProduct?.variants.edges[0]?.node.id;
+
+// --- END: SHOPIFY DATA FETCHING ---
 ---
+
 <Layout title={data.title}>
   <main class="py-16">
     <div class="max-w-5xl mx-auto px-4">
@@ -64,7 +119,7 @@ const { Content } = await render();
                   ))}
               </div>
           </div>
-           
+
         </div>
 
         <div class="pt-4">
@@ -72,9 +127,11 @@ const { Content } = await render();
 
           <div class="mb-8">
               <div class="flex items-center gap-4 mb-6">
-                  <p class="text-3xl font-light text-brand-primary">
-                      $XX.XX
-                  </p>
+                  {price && (
+                    <p class="text-3xl font-light text-brand-primary">
+                      ${parseInt(price.amount)} {price.currencyCode}
+                    </p>
+                  )}
                   <div class="text-gray-400">
                       ★★★★★ (0 reviews)
                   </div>

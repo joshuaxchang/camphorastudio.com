@@ -11,6 +11,7 @@ const productsCollection = defineCollection({
 		pubDate: z.coerce.date().optional(),
 		thumbnail: image().optional(),
 		images: z.array(image()),
+		shopifyProductId: z.string(),
 	}),
 });
 
