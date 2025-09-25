@@ -10,6 +10,7 @@ const productsCollection = defineCollection({
 		description: z.string(),
 		pubDate: z.coerce.date().optional(),
 		thumbnail: image().optional(),
+		images: z.array(image()),
 	}),
 });
 
