@@ -7,13 +7,13 @@ export default {
     theme: {
         extend: {
             colors: {
-                'brand-bg': '#FCFBF8',          // A brighter, sunnier off-white
-                'brand-card': '#FFFFFF',        // Pure white for cards
-                'brand-text': '#4B423C',        // Kept the deep, rich brown for text
-                'brand-primary': '#5B8266',     // A lighter, sunnier camphor leaf green
-                'brand-primary-hover': '#4A6B52',// A darker shade for hover
-                'brand-accent': '#A88A6F',      // A lighter, sun-bleached bark brown
-                'brand-accent-light': '#F3EFEA', // A very light, warm beige
+                'brand-bg': '#FCFBF8',          // Keep the bright, sunnier off-white
+                'brand-card': '#FFFFFF',        // Keep pure white for cards
+                'brand-text': '#4B423C',        // Keep the deep, rich brown for text
+                'brand-primary': '#3A5F45',     // A new, deep forest green (less olive)
+                'brand-primary-hover': '#2E4C37',// A darker shade of the new green
+                'brand-accent': '#A88A6F',      // Keep the lighter, sun-bleached bark
+                'brand-accent-light': '#F3EFEA', // Keep the very light, warm beige
 
             },
             fontFamily: {

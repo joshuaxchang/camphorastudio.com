@@ -1,8 +1,8 @@
 ---
-title: 'Test 1'
-sortOrder: 1
-shopifyProductId: 'gid://shopify/Product/7804723593325'
-thumbnail: './giraffe.jpg'
+title: 'Test 2'
+sortOrder: 2
+shopifyProductId: 'gid://shopify/Product/7804728246381'
+thumbnail: './product2.jpeg'
 images:
   - './giraffe.jpg'
   - './product2.jpeg'

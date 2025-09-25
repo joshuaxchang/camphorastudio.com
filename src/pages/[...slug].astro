@@ -17,7 +17,6 @@ async function getShopifyProduct(shopifyProductId) {
         priceRange {
           minVariantPrice {
             amount
-            currencyCode
           }
         }
         variants(first: 1) {
@@ -129,7 +128,7 @@ const variantId = shopifyProduct?.variants.edges[0]?.node.id;
               <div class="flex items-center gap-4 mb-6">
                   {price && (
                     <p class="text-3xl font-light text-brand-primary">
-                      ${parseInt(price.amount)} {price.currencyCode}
+                      ${parseInt(price.amount)} 
                     </p>
                   )}
                   <div class="text-gray-400">

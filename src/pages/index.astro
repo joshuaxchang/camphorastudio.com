@@ -1,16 +1,62 @@
 ---
-// src/pages/index.astro
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 
-const products = await getCollection('products');
-products.sort((a, b) => {
-    if (a.data.pubDate && b.data.pubDate) {
-        return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+// --- START: SHOPIFY DATA FETCHING ---
+
+const SHOPIFY_STORE_DOMAIN = import.meta.env.PUBLIC_SHOPIFY_STORE_DOMAIN;
+const SHOPIFY_STOREFRONT_API_TOKEN = import.meta.env.PUBLIC_SHOPIFY_STOREFRONT_API_TOKEN;
+const storefrontApiUrl = `https://${SHOPIFY_STORE_DOMAIN}/api/2023-10/graphql.json`;
+
+const localProducts = await getCollection('products');
+
+const productsWithPrices = await Promise.all(
+  localProducts.map(async (product) => {
+    const shopifyProductId = product.data.shopifyProductId;
+    
+    const query = `
+      query getProductPriceById($id: ID!) {
+        product(id: $id) {
+          priceRange {
+            minVariantPrice {
+              amount
+            }
+          }
+        }
+      }
+    `;
+
+    try {
+      const response = await fetch(storefrontApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token': SHOPIFY_STOREFRONT_API_TOKEN,
+        },
+        body: JSON.stringify({
+          query,
+          variables: { id: shopifyProductId },
+        }),
+      });
+
+      const json = await response.json();
+      const price = json.data.product.priceRange.minVariantPrice;
+      
+      return { ...product, price };
+    } catch (error) {
+      console.error(`Failed to fetch price for ${product.slug}:`, error);
+      return { ...product, price: null };
     }
-    return 0;
+  })
+);
+// --- END: SHOPIFY DATA FETCHING ---
+
+// sort product by sortOrder
+productsWithPrices.sort((a, b) => {
+    return (a.data.sortOrder ?? 99) - (b.data.sortOrder ?? 99);
 });
+
 ---
 <Layout title="Camphora Studio | Handcrafted Goods">
   <main>
@@ -27,38 +73,43 @@ products.sort((a, b) => {
       <div class="max-w-5xl mx-auto px-4">
         <h2 class="font-heading text-4xl font-bold mb-12 text-center text-brand-text">Products</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
+          {productsWithPrices.map((product) => (
             <a href={`/${product.slug}`} class="group bg-brand-card rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col overflow-hidden">
-                
-                {product.data.thumbnail ? (
-                    <div class="overflow-hidden aspect-square">
-                        <Image 
-                            src={product.data.thumbnail} 
-                            alt={`thumbnail for ${product.data.title}`}
-                            width={500} 
-                            height={500}
-                            format="webp"
-                            class="w-full h-full object-cover transition-transform duration-300" 
-                        />
-                    </div>
-                ) : (
-                    <div class="w-full aspect-square bg-brand-bg flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                )}
-
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="font-heading text-2xl font-bold text-brand-text mb-2">{product.data.title}</h3>
-                    <p class="text-gray-600 mb-4 flex-grow">{product.data.description}</p>
-                    
-                    <button class="bg-brand-primary text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-brand-primary-hover transition-colors mt-auto w-full z-10">
-                        Add to cart
-                    </button>
+              
+              {product.data.thumbnail ? (
+                <div class="overflow-hidden aspect-square">
+                  <Image 
+                    src={product.data.thumbnail} 
+                    alt={`thumbnail for ${product.data.title}`}
+                    width={500} 
+                    height={500}
+                    format="webp"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                  />
                 </div>
+              ) : (
+                <div class="w-full aspect-square bg-brand-bg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
+
+              <div class="p-6 flex flex-col flex-grow">
+                <h3 class="font-heading text-2xl font-bold text-brand-text mb-2 group-hover:underline decoration-2 underline-offset-4">{product.data.title}</h3>                
+                <div class="flex justify-between items-center mt-auto pt-4">
+                  {product.price && (
+                    <p class="text-xl font-normal text-brand-primary">
+                      ${parseInt(product.price.amount)} {product.price.currencyCode}
+                    </p>
+                  )}
+                  <span class="text-brand-accent font-semibold">
+                    Details &rarr;
+                  </span>
+                </div>
+              </div>
             </a>
-        ))}
+          ))}
         </div>
       </div>
     </section>

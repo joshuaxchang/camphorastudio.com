@@ -7,11 +7,10 @@ import { defineCollection, z } from 'astro:content';
 const productsCollection = defineCollection({
 	schema: ({ image }) => z.object({
 		title: z.string(),
-		description: z.string(),
-		pubDate: z.coerce.date().optional(),
+		sortOrder: z.number().optional(),
+		shopifyProductId: z.string(),
 		thumbnail: image().optional(),
 		images: z.array(image()),
-		shopifyProductId: z.string(),
 	}),
 });
 
