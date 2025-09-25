@@ -136,9 +136,13 @@ const variantId = shopifyProduct?.variants.edges[0]?.node.id;
                   </div>
               </div>
 
-              <div id="buy-button-placeholder" class="bg-gray-100 rounded-md p-8 text-center">
-                  <p class="font-semibold text-gray-500">Shopify "Add to Cart" button will appear here.</p>
-              </div>
+              <button
+                id="add-to-cart"
+                data-variant-id={variantId}
+                class="w-full bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/90 transition-colors duration-300"
+              >
+                Add to Cart
+              </button>
           </div>
           
           <div class="prose max-w-none text-gray-700">
@@ -151,6 +155,7 @@ const variantId = shopifyProduct?.variants.edges[0]?.node.id;
             <h2 class="font-heading text-4xl font-bold mb-12 text-center text-brand-primary">Customer Reviews</h2>
             <div class="bg-gray-100 rounded-lg p-12 text-center">
                 <p class="font-semibold text-gray-500">Judge.me reviews widget will be implemented here.</p>
+                <p>{variantId}</p>
             </div>
         </section>
 
@@ -227,4 +232,14 @@ const variantId = shopifyProduct?.variants.edges[0]?.node.id;
   });
 
   lightbox.init();
+</script>
+
+<script>
+    import { addToCart } from '../lib/cart-store.js';
+
+    const addToCartButton = document.getElementById('add-to-cart');
+    addToCartButton.addEventListener('click', () => {
+        const variantId = addToCartButton.dataset.variantId;
+        addToCart(variantId);
+    });
 </script>
