@@ -25,6 +25,10 @@ function closeCart() {
     cartOverlay.classList.remove('opacity-50');
 }
 
+function showLoadingState() {
+    cartItemsContainer.innerHTML = '<p class="text-gray-500 animate-pulse">Updating cart...</p>';
+}
+
 function updateCartUI() {
     if (!cartData) {
         cartItemsContainer.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
@@ -65,12 +69,20 @@ function updateCartUI() {
     }
 }
 
-// --- API FUNCTIONS (remain the same) ---
+
+// --- API FUNCTIONS ---
 export async function addToCart(variantId) {
+    // --- THIS IS THE OPTIMISTIC LOGIC ---
+    // 1. Open the drawer immediately.
+    openCart();
+    // 2. Show a loading state inside the drawer.
+    showLoadingState();
+
     const isExistingCart = !!cartId;
     const action = isExistingCart ? 'add' : 'create';
     const body = isExistingCart ? { action, cartId, variantId } : { action, variantId };
     
+    // 3. Make the network request in the background.
     const res = await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,12 +92,13 @@ export async function addToCart(variantId) {
     if (!res.ok) {
         const errorData = await res.json();
         if (isExistingCart && errorData.error === 'invalid_cart') {
-            console.warn("Invalid cart detected. Clearing and creating a new one.");
             localStorage.removeItem('cartId');
             cartId = null;
             return addToCart(variantId);
         } else {
             console.error("An unexpected error occurred:", errorData);
+            // Revert to the last known good state on error
+            updateCartUI(); 
             return;
         }
     }
@@ -98,8 +111,8 @@ export async function addToCart(variantId) {
         localStorage.setItem('cartId', cartId);
     }
     
+    // 4. Update the UI with the final, real data.
     updateCartUI();
-    openCart();
 }
 
 async function initializeCart() {
@@ -121,7 +134,7 @@ async function initializeCart() {
     updateCartUI();
 }
 
-// --- INITIALIZE & ATTACH LISTENERS (remain the same) ---
+// --- INITIALIZE & ATTACH LISTENERS ---
 document.querySelectorAll('.open-cart').forEach(btn => btn.addEventListener('click', openCart));
 closeCartButton.addEventListener('click', closeCart);
 cartOverlay.addEventListener('click', closeCart);
