@@ -31,6 +31,7 @@ const CART_QUERY_FRAGMENT = `
             title
             price { amount }
             product { title }
+            image { url altText}
           }
         }
       }

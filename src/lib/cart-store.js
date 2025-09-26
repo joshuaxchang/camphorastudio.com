@@ -55,8 +55,10 @@ function updateCartUI() {
     cartData.lines.edges.forEach(item => {
         const line = item.node;
         const itemElement = document.createElement('div');
-        itemElement.className = 'flex items-center py-3 border-b';
+        // --- CHANGE STARTS HERE ---
+        itemElement.className = 'flex items-center py-3 border-b gap-4'; // Added gap-4 for spacing
         itemElement.innerHTML = `
+            <img src="${line.merchandise.image.url}" alt="${line.merchandise.product.title}" class="w-16 h-16 object-cover rounded-md">
             <div class="flex-grow pr-4">
                 <p class="font-semibold">${line.merchandise.product.title}</p>
                 <div class="flex items-center gap-3 mt-2">
@@ -68,6 +70,7 @@ function updateCartUI() {
             </div>
             <p class="font-semibold w-20 text-right">$${parseInt(line.cost.totalAmount.amount)}</p>
         `;
+        // --- CHANGE ENDS HERE ---
         cartItemsContainer.appendChild(itemElement);
     });
 
@@ -143,7 +146,13 @@ cartItemsContainer.addEventListener('click', (event) => {
 
     if (action === 'increase' || action === 'decrease') {
         const input = target.parentElement.querySelector('.quantity-input');
-        const currentQuantity = parseInt(input.value);
+        let currentQuantity = parseInt(input.value);
+        if (isNaN(currentQuantity)) {
+            // Find the original item in our cart data
+            const cartLine = cartData.lines.edges.find(item => item.node.id === lineId);
+            // If found, revert to its quantity. Otherwise, default to 0.
+            currentQuantity = cartLine ? cartLine.node.quantity : 0;
+        }
         const newQuantity = action === 'increase' ? currentQuantity + 1 : currentQuantity - 1;
         
         if (newQuantity > 0) {
