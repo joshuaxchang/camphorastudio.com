@@ -1,8 +1,12 @@
 <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50" transition:persist>
   <div class="p-6 h-full flex flex-col">
-    <div id="cart-loading-banner" class="absolute top-0 left-0 w-full bg-yellow-100 text-yellow-800 text-center py-2 text-sm hidden">
-        Updating...
+    <div id="cart-loading-banner" class="absolute inset-0 bg-brand-accent-light/10 flex justify-center items-center py-2 text-sm hidden backdrop-blur-custom z-10">
+      <svg class="animate-spin h-10 w-10 text-brand-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
     </div>
+
 
     <div class="flex justify-between items-center border-b pb-4">
       <h2 class="text-2xl font-bold">Your Cart</h2>
@@ -15,11 +19,18 @@
 
     <div class="border-t pt-4">
         <div id="cart-footer" class="hidden">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-4">
                 <p class="text-2xl font-normal">Subtotal</p>
                 <p id="cart-subtotal" class="text-2xl font-semibold">$0.00</p>
             </div>
-            <a id="checkout-link" href="#" class="w-full text-center bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/90 transition-colors duration-300 block">
+            <p class="text-sm font-light text-gray-500 mb-6">
+                Taxes & <a href="/shipping-policy" class="underline underline-offset-2 font-normal text-brand-text hover:text-brand-primary hover:brightness-75 transition-all duration-300">Shipping</a> calculated at checkout
+            </p>
+            <a 
+              id="checkout-link" 
+              href="#" 
+              class="w-full text-center bg-brand-primary text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 block h-12 flex items-center justify-center shadow-lg shadow-neutral-900/20 hover:shadow-xl hover:shadow-neutral-900/30 transform hover:-translate-y-1"
+            >
                 Checkout
             </a>
         </div>
@@ -28,6 +39,35 @@
 </div>
 <div id="cart-overlay" class="fixed top-0 left-0 w-full h-full bg-black opacity-0 z-40 transition-opacity duration-300 ease-in-out pointer-events-none"></div>
 
+<style>
+  #checkout-link.is-loading {
+    transform: none !important;
+    box-shadow: none !important;
+    cursor: wait !important; /* Shows a waiting cursor */
+  }
+</style>
+
 <script>
   import "../lib/cart-store.js";
+</script>
+
+<script>
+    const checkoutLink = document.getElementById('checkout-link');
+
+    if (checkoutLink) {
+        checkoutLink.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const spinnerIcon = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            
+            // Add the loading class to flatten the button
+            checkoutLink.classList.add('is-loading'); 
+            
+            checkoutLink.innerHTML = `<div class="flex justify-center items-center">${spinnerIcon}</div>`;
+            
+            setTimeout(() => {
+                window.location.href = checkoutLink.href;
+            }, 100);
+        });
+    }
 </script>

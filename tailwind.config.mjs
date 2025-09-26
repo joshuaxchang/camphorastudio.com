@@ -25,6 +25,9 @@ export default {
                 'card': '0 6px 16px 0 rgba(74, 74, 74, 0.08)', // Deeper, softer neutral shadow
                 'card-hover': '0 10px 30px 0 rgba(74, 74, 74, 0.2)', // Stronger, green-tinted hover shadow
             },
+            backdropBlur: {
+                'custom': '1.5px',
+            },
             typography: ({ theme }) => ({
                 DEFAULT: {
                     css: {

@@ -294,7 +294,7 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
         
         buyNowButton.disabled = true;
         addToCartButton.disabled = true;
-        buyNowButton.textContent = 'Processing...';
+        buyNowButton.innerHTML = `<div class="flex justify-center items-center">${spinnerIcon}</div>`;
 
         try {
             const res = await fetch('/api/buy-now', {
