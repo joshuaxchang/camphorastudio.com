@@ -145,12 +145,9 @@ async function cartAction(payload) {
     updateCartUI();
 }
 
-export function addToCart(variantId) {
-    // Trigger the visual cue on the main cart icon
-    triggerCartIconAnimation();
-    
-    // Perform the cart action without opening the drawer
-    cartAction({ action: cartId ? 'add' : 'create', variantId });
+export async function addToCart(variantId) {
+    // The animation is now triggered from the page script after this completes.
+    await cartAction({ action: cartId ? 'add' : 'create', variantId });
 }
 
 // --- INITIALIZE & ATTACH LISTENERS ---
