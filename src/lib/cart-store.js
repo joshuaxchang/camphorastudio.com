@@ -1,5 +1,5 @@
 // src/lib/cart-store.js
-console.log("Cart script is running!");
+
 // --- DOM ELEMENTS ---
 const cartDrawer = document.getElementById('cart-drawer');
 const cartOverlay = document.getElementById('cart-overlay');
