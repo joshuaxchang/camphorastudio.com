@@ -28,3 +28,23 @@
   height: auto;
   aspect-ratio: 560 / 440;
 }
+
+#cart-drawer.is-loading .quantity-btn,
+#cart-drawer.is-loading .remove-btn,
+#cart-drawer.is-loading .quantity-input {
+    pointer-events: none;
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Hide the default arrows (spinners) on number inputs for Chrome, Safari, Edge */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide the default arrows on number inputs for Firefox */
+.quantity-input[type=number] {
+  -moz-appearance: textfield;
+}

@@ -7,10 +7,15 @@ const closeCartButton = document.getElementById('close-cart');
 const cartItemsContainer = document.getElementById('cart-items');
 const checkoutLink = document.getElementById('checkout-link');
 const cartCountBadge = document.getElementById('cart-count-badge');
+const cartFooter = document.getElementById('cart-footer');
+const cartSubtotal = document.getElementById('cart-subtotal');
+const cartLoadingBanner = document.getElementById('cart-loading-banner');
 
 // --- STATE ---
 let cartId = localStorage.getItem('cartId');
 let cartData = null;
+let isLoading = false; // Prevents multiple simultaneous updates
+let debounceTimeout; // For the quantity input debouncer
 
 // --- UI FUNCTIONS ---
 function openCart() {
@@ -26,106 +31,155 @@ function closeCart() {
 }
 
 function showLoadingState() {
-    cartItemsContainer.innerHTML = '<p class="text-gray-500 animate-pulse">Updating cart...</p>';
+    isLoading = true;
+    cartDrawer.classList.add('is-loading');
+    cartLoadingBanner.classList.remove('hidden');
 }
 
 function updateCartUI() {
-    if (!cartData) {
+    isLoading = false;
+    cartDrawer.classList.remove('is-loading');
+    cartLoadingBanner.classList.add('hidden');
+
+    if (!cartData || !cartData.lines || cartData.lines.edges.length === 0) {
         cartItemsContainer.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
-        checkoutLink.href = '#';
+        cartFooter.classList.add('hidden');
         cartCountBadge.classList.add('hidden');
         cartCountBadge.textContent = '0';
         return;
     }
 
+    cartFooter.classList.remove('hidden');
     cartItemsContainer.innerHTML = '';
-    if (cartData.lines && cartData.lines.edges.length > 0) {
-        cartData.lines.edges.forEach(item => {
-            const line = item.node;
-            const itemElement = document.createElement('div');
-            itemElement.className = 'flex justify-between items-center py-2 border-b';
-            itemElement.innerHTML = `
-                <div>
-                    <p class="font-semibold">${line.merchandise.product.title}</p>
-                    <p class="text-sm text-gray-600">Quantity: ${line.quantity}</p>
+
+    cartData.lines.edges.forEach(item => {
+        const line = item.node;
+        const itemElement = document.createElement('div');
+        itemElement.className = 'flex items-center py-3 border-b';
+        itemElement.innerHTML = `
+            <div class="flex-grow pr-4">
+                <p class="font-semibold">${line.merchandise.product.title}</p>
+                <div class="flex items-center gap-3 mt-2">
+                    <button data-line-id="${line.id}" data-action="decrease" class="quantity-btn text-lg font-bold h-6 w-6 flex items-center justify-center rounded-full border">-</button>
+                    <input type="number" min="1" value="${line.quantity}" data-line-id="${line.id}" class="quantity-input w-12 text-center border rounded-md">
+                    <button data-line-id="${line.id}" data-action="increase" class="quantity-btn text-lg font-bold h-6 w-6 flex items-center justify-center rounded-full border">+</button>
+                    <button data-line-id="${line.id}" data-action="remove" class="remove-btn text-sm text-red-500 hover:underline ml-auto">Remove</button>
                 </div>
-                <p class="font-semibold">$${parseInt(line.merchandise.price.amount)}</p>
-            `;
-            cartItemsContainer.appendChild(itemElement);
-        });
-    } else {
-        cartItemsContainer.innerHTML = '<p class="text-gray-500">Your cart is empty.</p>';
-    }
+            </div>
+            <p class="font-semibold w-20 text-right">$${parseInt(line.cost.totalAmount.amount)}</p>
+        `;
+        cartItemsContainer.appendChild(itemElement);
+    });
 
     checkoutLink.href = cartData.checkoutUrl;
-
-    const totalItems = cartData.totalQuantity || 0;
+    cartSubtotal.textContent = `$${parseInt(cartData.cost.subtotalAmount.amount)}`;
     
+    const totalItems = cartData.totalQuantity || 0;
     cartCountBadge.textContent = totalItems;
-    if (totalItems > 0) {
-        cartCountBadge.classList.remove('hidden');
-    } else {
-        cartCountBadge.classList.add('hidden');
-    }
+    cartCountBadge.classList.toggle('hidden', totalItems === 0);
 }
 
+// --- API & LOGIC ---
 
-// --- API FUNCTIONS ---
-export async function addToCart(variantId) {
-    // --- THIS IS THE OPTIMISTIC LOGIC ---
-    // 1. Open the drawer immediately.
-    openCart();
-    // 2. Show a loading state inside the drawer.
+// This is now the single, central function for all cart mutations.
+async function cartAction(payload) {
+    if (isLoading) return;
     showLoadingState();
 
-    const isExistingCart = !!cartId;
-    const action = isExistingCart ? 'add' : 'create';
-    const body = isExistingCart ? { action, cartId, variantId } : { action, variantId };
-    
-    // 3. Make the network request in the background.
+    let body = { ...payload };
+    if (body.action === 'create') {
+        body.cartId = null;
+    } else {
+        body.cartId = cartId;
+    }
+
     const res = await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     });
-    
+
     if (!res.ok) {
         const errorData = await res.json();
-        if (isExistingCart && errorData.error === 'invalid_cart') {
+        if (cartId && errorData.error === 'invalid_cart') {
+            console.warn("Invalid cart detected. Clearing and creating a new one.");
             localStorage.removeItem('cartId');
             cartId = null;
-            return addToCart(variantId);
-        } else {
-            console.error("An unexpected error occurred:", errorData);
-            // Revert to the last known good state on error
-            updateCartUI(); 
-            return;
+            return cartAction({ action: 'create', variantId: payload.variantId });
         }
+        updateCartUI(); // Revert to last good state on other errors
+        return;
     }
 
     const { cart } = await res.json();
     cartData = cart;
 
-    if (!cartId) {
+    if (!cartId && cart) {
         cartId = cart.id;
         localStorage.setItem('cartId', cartId);
     }
     
-    // 4. Update the UI with the final, real data.
     updateCartUI();
 }
+
+export function addToCart(variantId) {
+    openCart();
+    cartAction({ action: cartId ? 'add' : 'create', variantId });
+}
+
+// --- INITIALIZE & ATTACH LISTENERS ---
+
+// Event delegation for all user interactions within the cart.
+cartItemsContainer.addEventListener('click', (event) => {
+    const target = event.target.closest('button');
+    if (!target) return;
+
+    const lineId = target.dataset.lineId;
+    const action = target.dataset.action;
+
+    if (action === 'remove') {
+        cartAction({ action: 'remove', lineId });
+    }
+
+    if (action === 'increase' || action === 'decrease') {
+        const input = target.parentElement.querySelector('.quantity-input');
+        const currentQuantity = parseInt(input.value);
+        const newQuantity = action === 'increase' ? currentQuantity + 1 : currentQuantity - 1;
+        
+        if (newQuantity > 0) {
+            cartAction({ action: 'update', lineId, quantity: newQuantity });
+        } else {
+            cartAction({ action: 'remove', lineId });
+        }
+    }
+});
+
+cartItemsContainer.addEventListener('input', (event) => {
+    const target = event.target;
+    if (target.classList.contains('quantity-input')) {
+        clearTimeout(debounceTimeout);
+        const lineId = target.dataset.lineId;
+        const quantity = parseInt(target.value);
+
+        if (!isNaN(quantity) && quantity > 0) {
+            debounceTimeout = setTimeout(() => {
+                cartAction({ action: 'update', lineId, quantity });
+            }, 500); // 500ms delay
+        } else if (target.value === '0') {
+            cartAction({ action: 'remove', lineId });
+        }
+    }
+});
 
 async function initializeCart() {
     if (cartId) {
         const res = await fetch(`/api/cart?cartId=${cartId}`, { cache: 'no-store' });
         if (res.ok) {
             const { cart } = await res.json();
-            if (cart) {
-                cartData = cart;
-            } else {
+            cartData = cart || null;
+            if (!cart) {
                 localStorage.removeItem('cartId');
                 cartId = null;
-                cartData = null;
             }
         }
     } else {
@@ -134,7 +188,6 @@ async function initializeCart() {
     updateCartUI();
 }
 
-// --- INITIALIZE & ATTACH LISTENERS ---
 document.querySelectorAll('.open-cart').forEach(btn => btn.addEventListener('click', openCart));
 closeCartButton.addEventListener('click', closeCart);
 cartOverlay.addEventListener('click', closeCart);

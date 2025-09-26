@@ -1,16 +1,28 @@
 <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
   <div class="p-6 h-full flex flex-col">
+    <div id="cart-loading-banner" class="absolute top-0 left-0 w-full bg-yellow-100 text-yellow-800 text-center py-2 text-sm hidden">
+        Updating...
+    </div>
+
     <div class="flex justify-between items-center border-b pb-4">
       <h2 class="text-2xl font-bold">Your Cart</h2>
       <button id="close-cart" class="text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
     </div>
+    
     <div id="cart-items" class="flex-grow py-4 overflow-y-auto">
       <p class="text-gray-500">Your cart is empty.</p>
     </div>
+
     <div class="border-t pt-4">
-        <a id="checkout-link" href="#" class="w-full text-center bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/90 transition-colors duration-300 block">
-            Checkout
-        </a>
+        <div id="cart-footer" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-lg font-semibold">Subtotal</p>
+                <p id="cart-subtotal" class="text-lg font-bold">$0.00</p>
+            </div>
+            <a id="checkout-link" href="#" class="w-full text-center bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/90 transition-colors duration-300 block">
+                Checkout
+            </a>
+        </div>
     </div>
   </div>
 </div>
