@@ -10,6 +10,7 @@ const cartCountBadge = document.getElementById('cart-count-badge');
 const cartFooter = document.getElementById('cart-footer');
 const cartSubtotal = document.getElementById('cart-subtotal');
 const cartLoadingBanner = document.getElementById('cart-loading-banner');
+const cartOpenButtons = document.querySelectorAll('.open-cart');
 
 // --- STATE ---
 let cartId = localStorage.getItem('cartId');
@@ -34,6 +35,15 @@ function showLoadingState() {
     isLoading = true;
     cartDrawer.classList.add('is-loading');
     cartLoadingBanner.classList.remove('hidden');
+}
+
+function triggerCartIconAnimation() {
+    cartOpenButtons.forEach(btn => {
+        btn.classList.add('animate-shake');
+        setTimeout(() => {
+            btn.classList.remove('animate-shake');
+        }, 600); // Must match the animation duration
+    });
 }
 
 function updateCartUI() {
@@ -136,7 +146,10 @@ async function cartAction(payload) {
 }
 
 export function addToCart(variantId) {
-    openCart();
+    // Trigger the visual cue on the main cart icon
+    triggerCartIconAnimation();
+    
+    // Perform the cart action without opening the drawer
     cartAction({ action: cartId ? 'add' : 'create', variantId });
 }
 
