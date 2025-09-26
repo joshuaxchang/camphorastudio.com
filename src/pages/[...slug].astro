@@ -136,16 +136,15 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
                 <button
                   id="add-to-cart"
                   data-variant-id={variantId}
-                  class="w-full bg-brand-text text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-text/80 transition-colors duration-300 disabled:opacity-50"
+                  class="w-full bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/80 transition-colors duration-300 disabled:opacity-70"
                 >
                   Add to Cart
                 </button>
                 <button
                   id="buy-now"
                   data-variant-id={variantId}
-                  class="w-full bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/80 transition-colors duration-300 disabled:opacity-50"
-                >
-                  Buy It Now
+                  class="w-full bg-transparent border-2 border-brand-text text-brand-text font-bold py-3 px-6 rounded-lg hover:bg-brand-text/15 transition-all duration-300 disabled:opacity-50"                >
+                  Buy Now
                 </button>
               </div>
               </div>
@@ -160,7 +159,6 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
             <h2 class="font-heading text-4xl font-bold mb-12 text-center text-brand-primary">Customer Reviews</h2>
             <div class="bg-gray-100 rounded-lg p-12 text-center">
                 <p class="font-semibold text-gray-500">Judge.me reviews widget will be implemented here.</p>
-                <p>{variantId}</p>
             </div>
         </section>
 
