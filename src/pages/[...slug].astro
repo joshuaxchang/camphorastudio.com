@@ -136,14 +136,14 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
                 <button
                   id="add-to-cart"
                   data-variant-id={variantId}
-                  class="w-full bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-primary/75 transition-colors duration-300 disabled:opacity-70"
+                  class="w-full bg-brand-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-neutral-900/20 hover:shadow-xl hover:shadow-neutral-900/30 transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-70 "
                 >
                   Add to Cart
                 </button>
                 <button
                   id="buy-now"
                   data-variant-id={variantId}
-                  class="w-full bg-brand-text text-white font-bold py-3 px-6 rounded-lg hover:bg-brand-text/75 transition-all duration-300 disabled:opacity-70"                >
+                  class="w-full bg-brand-text text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-neutral-900/20 hover:shadow-xl hover:shadow-neutral-900/30 transform hover:-translate-y-1 transition-all duration-300 disabled:opacity-70"                >
                   Buy Now
                 </button>
               </div>
@@ -186,6 +186,12 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
 
   .thumbs-gallery .swiper-slide-thumb-active {
     opacity: 1;
+  }
+
+  button:disabled {
+    transform: none !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important; /* Good practice to show a 'not allowed' cursor */
   }
 </style>
 
@@ -241,27 +247,18 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
 <script>
     import { addToCart } from '../lib/cart-store.js';
 
-    // Note: The triggerCartIconAnimation function is now defined here
-    // as it's only used on this page's interaction.
     const cartOpenButtons = document.querySelectorAll('.open-cart');
     function triggerCartIconAnimation() {
         cartOpenButtons.forEach(btn => {
             btn.classList.add('animate-shake');
-            setTimeout(() => {
-                btn.classList.remove('animate-shake');
-            }, 600); // Duration of the shake animation
+            setTimeout(() => { btn.classList.remove('animate-shake'); }, 600);
         });
     }
 
     const addToCartButton = document.getElementById('add-to-cart');
     const buyNowButton = document.getElementById('buy-now');
 
-    const spinnerIcon = `
-        <svg class="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-    `;
+    const spinnerIcon = `<svg class="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
 
     addToCartButton.addEventListener('click', async () => {
         const variantId = addToCartButton.dataset.variantId;
@@ -272,18 +269,14 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
 
         try {
             await addToCart(variantId);
-
             addToCartButton.innerHTML = '✓ Added!';
-            
-            setTimeout(() => {
-                triggerCartIconAnimation();
-            }, 250); // 250ms delay
+            setTimeout(() => { triggerCartIconAnimation(); }, 250);
 
             setTimeout(() => {
                 addToCartButton.disabled = false;
                 buyNowButton.disabled = false;
                 addToCartButton.innerHTML = 'Add to Cart';
-            }, 1500);
+            }, 2000);
 
         } catch (error) {
             console.error("Failed to add item to cart:", error);
@@ -292,17 +285,16 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
                 addToCartButton.disabled = false;
                 buyNowButton.disabled = false;
                 addToCartButton.innerHTML = 'Add to Cart';
-            }, 1500);
+            }, 2000);
         }
     });
 
-    // --- Buy Now button logic remains the same ---
     buyNowButton.addEventListener('click', async () => {
         const variantId = buyNowButton.dataset.variantId;
         
         buyNowButton.disabled = true;
-        buyNowButton.textContent = 'Processing...';
         addToCartButton.disabled = true;
+        buyNowButton.textContent = 'Processing...';
 
         try {
             const res = await fetch('/api/buy-now', {
@@ -312,7 +304,6 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
             });
 
             if (!res.ok) throw new Error('Failed to create checkout.');
-
             const { checkoutUrl } = await res.json();
             window.location.href = checkoutUrl;
 
@@ -320,6 +311,7 @@ const isAvailable = shopifyProduct?.variants.edges[0]?.node.availableForSale;
             console.error(error);
             buyNowButton.textContent = 'Error - Please try again';
             addToCartButton.disabled = false;
+            // The disabled attribute will be removed from buyNowButton if you add a reverting timeout here
         }
     });
 </script>

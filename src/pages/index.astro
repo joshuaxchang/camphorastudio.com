@@ -74,7 +74,7 @@ productsWithPrices.sort((a, b) => {
         <h2 class="font-heading text-4xl font-bold mb-12 text-center text-brand-text">Products</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {productsWithPrices.map((product) => (
-            <a href={`/${product.slug}`} class="group bg-brand-card rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col overflow-hidden">
+            <a href={`/${product.slug}`} class="group bg-brand-card rounded-lg shadow-card hover:shadow-card-hover transition-all duration-300 flex flex-col overflow-hidden transform hover:-translate-y-2">
               
               {product.data.thumbnail ? (
                 <div class="overflow-hidden aspect-square">
@@ -84,7 +84,7 @@ productsWithPrices.sort((a, b) => {
                     width={500} 
                     height={500}
                     format="webp"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    class="w-full h-full object-cover transition-transform duration-300" 
                   />
                 </div>
               ) : (
